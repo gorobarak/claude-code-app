@@ -153,13 +153,13 @@ int main(int argc, char* argv[]) {
         }
         msg = result["choices"][0]["message"];
         std::cerr << "model message:" << std::endl;
-        std::cerr << msg["content"].get<std::string>() << std::endl;
+        std::cerr << msg["content"] << std::endl;
         messages.push_back(msg);
         finish_reason = result["choices"][0]["finish_reason"].get<std::string>();
         
     }
     // finish_reason == "stop"
-    std::cout << messages.back()["contents"].get<std::string>();
+    std::cout << messages.back()["contents"];
     
 
 
