@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <sstream>
 
 #include <cpr/cpr.h>
 #include <nlohmann/json.hpp>
@@ -36,6 +37,7 @@ int main(int argc, char* argv[]) {
         std::ifstream f(std::string(TOOLS_DIR) + "/" + name + ".json");
         if (!f){
             std::cerr << "Cooludn;t load tool " << name << std::endl;
+            return 1;
         }
         tools.push_back(json::parse(f));
     } 
@@ -67,11 +69,38 @@ int main(int argc, char* argv[]) {
         std::cerr << "No choices in response" << std::endl;
         return 1;
     }
+    json msg = result["choices"][0]["message"];
+    std::string finish_reason = result["choices"][0]["finish_reason"].get<std::string>();
+    if (finish_reason == "tool_calls"){
+        json tool = msg["tool_calls"][0];
+        std::string name = tool["function"]["name"].get<std::string>();
+        if (name == "Read"){
+            json arguments = json::parse(tool["function"]["arguments"].get<std::string>());
+            if (!arguments.contains("file_path")){
+                std::cerr << "Missing \'file_path\' argument for Read" << std::endl;
+                return 1;
+            }
+            std::ifstream f(arguments["file_path"].get<std::string>());
+            if (!f) 
+            {
+                std::cerr << "File not found " << arguments["file_path"].get<std::string>() << std::endl;
+                return 1;
+            }
+            std::stringstream ss;
+            ss << f.rdbuf();
+            std::cout << ss.str();
+        }
+        
+        
+    }
+    else if (finish_reason == "stop")
+    {
+        std::cout << msg["content"].get<std::string>();
+    }
+    
 
-    // You can use print statements as follows for debugging, they'll be visible when running tests.
-    std::cerr << "Logs from your program will appear here!" << std::endl;
 
-    std::cout << result["choices"][0]["message"]["content"].get<std::string>();
 
+    
     return 0;
 }
