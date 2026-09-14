@@ -1045,3 +1045,5 @@ dkms.conf
 *.dis
 
 vcpkg_installed
+# Local scratchpad, not part of the CodeCrafters build
+src/playground.cpp

@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
+#include <fstream>
 
 #include <cpr/cpr.h>
 #include <nlohmann/json.hpp>
@@ -30,12 +31,20 @@ int main(int argc, char* argv[]) {
         std::cerr << "OPENROUTER_API_KEY is not set" << std::endl;
         return 1;
     }
-
+    json tools = json::array();
+    for (const auto& name : {"Read"}){
+        std::ifstream f(std::string(TOOLS_DIR) + "/" + name + ".json");
+        if (!f){
+            std::cerr << "Cooludn;t load tool " << name << std::endl;
+        }
+        tools.push_back(json::parse(f));
+    } 
     json request_body = {
         {"model", "anthropic/claude-haiku-4.5"},
         {"messages", json::array({
             {{"role", "user"}, {"content", prompt}}
-        })}
+        })},
+        {"tools", tools},
     };
 
     cpr::Response response = cpr::Post(
@@ -62,7 +71,6 @@ int main(int argc, char* argv[]) {
     // You can use print statements as follows for debugging, they'll be visible when running tests.
     std::cerr << "Logs from your program will appear here!" << std::endl;
 
-    // TODO: Uncomment the line below to pass the first stage
     std::cout << result["choices"][0]["message"]["content"].get<std::string>();
 
     return 0;
