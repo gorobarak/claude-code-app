@@ -3,6 +3,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <map>
 
 #include <cpr/cpr.h>
 #include <nlohmann/json.hpp>
@@ -17,12 +18,23 @@ static std::string env_or(const char* name, const char* fallback) {
 static const std::string api_key = env_or("OPENROUTER_API_KEY", "");
 static const std::string base_url = env_or("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1");
 
-int execute_read_tool(json& arguments, json& out_result){
+int execute_write_tool(const json& arguments, std::string& out);
+int execute_read_tool(const json& arguments, std::string& out);
+static const std::map<std::string, int(*)(const json&, std::string&)> tool_executers = {
+    {"Read", execute_read_tool},
+    {"Write", execute_write_tool},
+};
+
+int execute_write_tool(const json& arguments, std::string& out){
+    std::cerr << "Not Implemented" << std::endl;
+    return 1;
+}
+int execute_read_tool(const json& arguments, std::string& out){
         if (!arguments.contains("file_path")){
             std::cerr << "Missing \'file_path\' argument for Read" << std::endl;
             return 1;
         }
-        std::ifstream f(arguments["file_path"].get<std::string>());
+        std::ifstream f(arguments.at("file_path").get<std::string>());
         if (!f) 
         {
             std::cerr << "File not found " << arguments["file_path"].get<std::string>() << std::endl;
@@ -30,8 +42,7 @@ int execute_read_tool(json& arguments, json& out_result){
         }
         std::stringstream ss;
         ss << f.rdbuf();
-        out_result["role"] = "tool";
-        out_result["content"] = ss.str();
+        out = ss.str();
         return 0;
 }
 
@@ -114,17 +125,18 @@ int main(int argc, char* argv[]) {
             for (json& tool : msg["tool_calls"]){
                 std::string name = tool["function"]["name"].get<std::string>();
                 json arguments = json::parse(tool["function"]["arguments"].get<std::string>());
-                json tool_result;
-                if (name == "Read"){
-                    execute_read_tool(arguments, tool_result);
-                }
-                else if (name == "Write"){
-                    continue;
-                }
-                else{
+                std::string tool_result;
+                auto it = tool_executers.find(name);
+                if (it == tool_executers.end()){
                     std::cerr << "Unknown tool call " << name << std::endl;
                     return 1;
                 }
+                it->second(arguments, tool_result);
+
+                messages.push_back({
+                    {"role", "tool"},
+                    {"content", tool_result}
+                });
             }
         }
 
