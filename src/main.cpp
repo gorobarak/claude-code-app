@@ -64,6 +64,7 @@ int send_request(json& messages, json& tools, json& out_result){
 
     if (response.status_code != 200) {
         std::cerr << "HTTP error: " << response.status_code << std::endl;
+        std::cerr << response.text;
         return 1;
     }
 
@@ -132,11 +133,10 @@ int main(int argc, char* argv[]) {
                     return 1;
                 }
                 it->second(arguments, tool_result);
-
-                messages.push_back(json({
+                messages.push_back({
                     {"role", "tool"},
                     {"content", tool_result}
-                }));
+                });
             }
         }
 
