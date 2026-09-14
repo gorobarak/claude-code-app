@@ -118,6 +118,7 @@ int main(int argc, char* argv[]) {
     }
     
     json msg = result["choices"][0]["message"];
+    messages.push_back(msg);
     std::cerr << "model message:" << std::endl;
     std::cerr << msg["content"] << std::endl;
     std::string finish_reason = result["choices"][0]["finish_reason"].get<std::string>();

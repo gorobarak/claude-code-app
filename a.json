@@ -1,57 +1,61 @@
-{
-    "choices": [
-        {
-            "finish_reason": "tool_calls",
-            "index": 0,
-            "logprobs": null,
-            "message": {
-                "content": null,
-                "reasoning": null,
-                "refusal": null,
-                "role": "assistant",
-                "tool_calls": [
-                    {
-                        "function": {
-                            "arguments": "{\"file_path\": \"README.md\"}",
-                            "name": "Read"
-                        },
-                        "id": "toolu_bdrk_01KtVaHgXCxCvZtnAiru9J84",
-                        "index": 0,
-                        "type": "function"
-                    }
-                ]
-            },
-            "native_finish_reason": "tool_use"
-        }
-    ],
-    "created": 1789397823,
-    "id": "gen-1789397823-S1X6pzazWCtLDVSYFj3T",
-    "model": "anthropic/claude-haiku-4.5",
-    "object": "chat.completion",
-    "provider": "Amazon Bedrock",
-    "service_tier": "default",
-    "system_fingerprint": null,
-    "usage": {
-        "completion_tokens": 56,
-        "completion_tokens_details": {
-            "audio_tokens": 0,
-            "image_tokens": 0,
-            "reasoning_tokens": 0
-        },
-        "cost": 0.00086625,
-        "cost_details": {
-            "upstream_inference_completions_cost": 0.00028,
-            "upstream_inference_cost": 0.000875,
-            "upstream_inference_prompt_cost": 0.000595
-        },
-        "is_byok": false,
-        "prompt_tokens": 595,
-        "prompt_tokens_details": {
-            "audio_tokens": 0,
-            "cache_write_tokens": 0,
-            "cached_tokens": 0,
-            "video_tokens": 0
-        },
-        "total_tokens": 651
+[
+    {
+        "content": "Find the chemical expiry period in months from README.md. Respond with only a number.",
+        "role": "user"
+    },
+    {
+        "content": "This is a simple python project.\n- The starting point of this project is app/init.py.\n- The file app/substance.py contains chemical properties.",
+        "role": "tool",
+        "tool_call_id": "toolu_bdrk_01MveqakADV1juNMyBh85Ki1"
+    },
+    {
+        "content": null,
+        "reasoning": null,
+        "refusal": null,
+        "role": "assistant",
+        "tool_calls": [
+            {
+                "function": {
+                    "arguments": "{\"file_path\": \"README.md\"}",
+                    "name": "Read"
+                },
+                "id": "toolu_bdrk_0167JcioMAVtC4qHQFs4zizr",
+                "index": 0,
+                "type": "function"
+            }
+        ]
+    },
+    {
+        "content": "This is a simple python project.\n- The starting point of this project is app/init.py.\n- The file app/substance.py contains chemical properties.",
+        "role": "tool",
+        "tool_call_id": "toolu_bdrk_0167JcioMAVtC4qHQFs4zizr"
+    },
+    {
+        "content": "Let me check the substance.py file:",
+        "reasoning": null,
+        "refusal": null,
+        "role": "assistant",
+        "tool_calls": [
+            {
+                "function": {
+                    "arguments": "{\"file_path\": \"app/substance.py\"}",
+                    "name": "Read"
+                },
+                "id": "toolu_bdrk_01VMbfQe9vFXfm3LQbH66rMP",
+                "index": 0,
+                "type": "function"
+            }
+        ]
+    },
+    {
+        "content": "chemical_expiry_period = 30  # months",
+        "role": "tool",
+        "tool_call_id": "toolu_bdrk_01VMbfQe9vFXfm3LQbH66rMP"
+    },
+    {
+        "content": "30",
+        "reasoning": null,
+        "refusal": null,
+        "role": "assistant"
     }
-}
+]
