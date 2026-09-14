@@ -137,6 +137,8 @@ int main(int argc, char* argv[]) {
                     {"content", tool_result},
                     {"tool_call_id", tool["id"]},
                 });
+                std::cerr << "Tool message:" << std::endl;
+                std::cerr << tool_result << std::endl;
             }
         }
 
@@ -148,6 +150,8 @@ int main(int argc, char* argv[]) {
             return 1;
         }
         msg = result["choices"][0]["message"];
+        std::cerr << "model message:" << std::endl;
+        std::cerr << msg["content"] << std::endl;
         messages.push_back(msg);
         finish_reason = result["choices"][0]["finish_reason"].get<std::string>();
         
