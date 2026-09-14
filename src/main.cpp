@@ -88,7 +88,7 @@ int load_tools(json& out_tools) {
     for (const auto& entry : fs::directory_iterator(TOOLS_DIR)) {
         if (entry.path().extension() != ".json") continue;
         std::ifstream f(entry.path());
-        if (!f) {std::cerr << "Error loading file " << entry.path()<< std::endl; return 1}
+        if (!f) {std::cerr << "Error loading file " << entry.path()<< std::endl; return 1;}
         out_tools.push_back(json::parse(f));
     }
     return 0;
