@@ -133,10 +133,10 @@ int main(int argc, char* argv[]) {
                 }
                 it->second(arguments, tool_result);
 
-                messages.push_back({
+                messages.push_back(json({
                     {"role", "tool"},
                     {"content", tool_result}
-                });
+                }));
             }
         }
 
