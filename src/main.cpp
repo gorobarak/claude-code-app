@@ -159,6 +159,7 @@ int main(int argc, char* argv[]) {
         
     }
     // finish_reason == "stop"
+    std::cerr << messages.dump() << std::endl;
     std::cout << messages.back()["contents"];
     
 
