@@ -1,0 +1,57 @@
+{
+    "choices": [
+        {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+                "content": null,
+                "reasoning": null,
+                "refusal": null,
+                "role": "assistant",
+                "tool_calls": [
+                    {
+                        "function": {
+                            "arguments": "{\"file_path\": \"README.md\"}",
+                            "name": "Read"
+                        },
+                        "id": "toolu_bdrk_01KtVaHgXCxCvZtnAiru9J84",
+                        "index": 0,
+                        "type": "function"
+                    }
+                ]
+            },
+            "native_finish_reason": "tool_use"
+        }
+    ],
+    "created": 1789397823,
+    "id": "gen-1789397823-S1X6pzazWCtLDVSYFj3T",
+    "model": "anthropic/claude-haiku-4.5",
+    "object": "chat.completion",
+    "provider": "Amazon Bedrock",
+    "service_tier": "default",
+    "system_fingerprint": null,
+    "usage": {
+        "completion_tokens": 56,
+        "completion_tokens_details": {
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "reasoning_tokens": 0
+        },
+        "cost": 0.00086625,
+        "cost_details": {
+            "upstream_inference_completions_cost": 0.00028,
+            "upstream_inference_cost": 0.000875,
+            "upstream_inference_prompt_cost": 0.000595
+        },
+        "is_byok": false,
+        "prompt_tokens": 595,
+        "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cache_write_tokens": 0,
+            "cached_tokens": 0,
+            "video_tokens": 0
+        },
+        "total_tokens": 651
+    }
+}
