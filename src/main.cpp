@@ -47,9 +47,9 @@ int execute_read_tool(const json& arguments, std::string& out){
 }
 
 void log_msg(const json& msg){
-    std::cerr << msg["role"].get<std::string>() << std::endl;
+    std::cerr << msg["role"].get<std::string>() << ":" << std::endl;
     if (msg["content"].is_string()) {
-        std::cerr << msg["content"].get<std::string>() << std::endl;
+        std::cerr << "      " << msg["content"].get<std::string>() << std::endl;
     }
     else{
         std::cerr << "<Empty message>" << std::endl;
