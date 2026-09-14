@@ -46,6 +46,16 @@ int execute_read_tool(const json& arguments, std::string& out){
         return 0;
 }
 
+void log_msg(const json& msg){
+    std::cerr << msg["role"] << std::endl;
+    if (msg["content"].is_string()) {
+        std::cerr << msg["content"].get<std::string>() << std::endl;
+    }
+    else{
+        std::cerr << "<Empty message>" << std::endl;
+    }
+}
+
 int send_request(json& messages, json& tools, json& out_result){
     json request_body = {
         {"model", "anthropic/claude-haiku-4.5"},
@@ -119,8 +129,7 @@ int main(int argc, char* argv[]) {
     
     json msg = result["choices"][0]["message"];
     messages.push_back(msg);
-    std::cerr << "Model message:" << std::endl;
-    std::cerr << msg.value("content", "") << std::endl;
+    log_msg(messages.back());
     std::string finish_reason = result["choices"][0]["finish_reason"].get<std::string>();
 
     while (finish_reason != "stop"){
@@ -140,8 +149,7 @@ int main(int argc, char* argv[]) {
                     {"content", tool_result},
                     {"tool_call_id", tool["id"]},
                 });
-                std::cerr << "Tool message:" << std::endl;
-                std::cerr << tool_result << std::endl;
+                log_msg(messages.back());
             }
         }
 
@@ -153,9 +161,8 @@ int main(int argc, char* argv[]) {
             return 1;
         }
         msg = result["choices"][0]["message"];
-        std::cerr << "Model message:" << std::endl;
-        std::cerr << msg["content"].get<std::string>() << std::endl;
         messages.push_back(msg);
+        log_msg(messages.back());
         finish_reason = result["choices"][0]["finish_reason"].get<std::string>();
         
     }
