@@ -52,7 +52,7 @@ void log_msg(const json& msg){
         std::cerr << "      " << msg["content"].get<std::string>() << std::endl;
     }
     else{
-        std::cerr << "<Empty message>" << std::endl;
+        std::cerr << "      " << "<Empty message>" << std::endl;
     }
 }
 
