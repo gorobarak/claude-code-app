@@ -145,6 +145,7 @@ int main(int argc, char* argv[]) {
         }
         if (result.contains("choices") || result["choices"].empty()){
             std::cerr << "No choices in response" << std::endl;
+            std::cerr << result.dump() << std::endl;
             return 1;
         }
         msg = result["choices"][0]["message"];
