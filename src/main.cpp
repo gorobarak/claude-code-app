@@ -119,8 +119,8 @@ int main(int argc, char* argv[]) {
     
     json msg = result["choices"][0]["message"];
     messages.push_back(msg);
-    // std::cerr << "model message:" << std::endl;
-    // std::cerr << msg["content"].get<std::string>() << std::endl;
+    std::cerr << "Model message:" << std::endl;
+    std::cerr << msg["content"].get<std::string>() << std::endl;
     std::string finish_reason = result["choices"][0]["finish_reason"].get<std::string>();
 
     while (finish_reason != "stop"){
@@ -140,8 +140,8 @@ int main(int argc, char* argv[]) {
                     {"content", tool_result},
                     {"tool_call_id", tool["id"]},
                 });
-                // std::cerr << "Tool message:" << std::endl;
-                // std::cerr << tool_result << std::endl;
+                std::cerr << "Tool message:" << std::endl;
+                std::cerr << tool_result << std::endl;
             }
         }
 
@@ -153,14 +153,14 @@ int main(int argc, char* argv[]) {
             return 1;
         }
         msg = result["choices"][0]["message"];
-        // std::cerr << "model message:" << std::endl;
-        // std::cerr << msg["content"].get<std::string>() << std::endl;
+        std::cerr << "Model message:" << std::endl;
+        std::cerr << msg["content"].get<std::string>() << std::endl;
         messages.push_back(msg);
         finish_reason = result["choices"][0]["finish_reason"].get<std::string>();
         
     }
     // finish_reason == "stop"
-    std::cerr << messages.dump() << std::endl;
+    // std::cerr << messages.dump() << std::endl;
     std::cout << messages.back()["content"].get<std::string>();
     
 
