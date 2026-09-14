@@ -4,6 +4,8 @@
 #include <fstream>
 #include <sstream>
 #include <map>
+#include <filesystem>
+namespace fs = std::filesystem;
 
 #include <cpr/cpr.h>
 #include <nlohmann/json.hpp>
@@ -82,6 +84,15 @@ int send_request(json& messages, json& tools, json& out_result){
 
 }
 
+int load_tools(json& out_tools) {
+    for (const auto& entry : fs::directory_iterator(TOOLS_DIR)) {
+        if (entry.path().extension() != ".json") continue;
+        std::ifstream f(entry.path());
+        if (!f) {std::cerr << "Error loading file " << entry.path()<< std::endl; return 1}
+        out_tools.push_back(json::parse(f));
+    }
+    return 0;
+}
 int main(int argc, char* argv[]) {
     if (argc < 3 || std::string(argv[1]) != "-p") {
         std::cerr << "Expected first argument to be '-p'" << std::endl;
@@ -100,16 +111,8 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-
     json tools = json::array();
-    for (const auto& name : {"Read"}){
-        std::ifstream f(std::string(TOOLS_DIR) + "/" + name + ".json");
-        if (!f){
-            std::cerr << "Couldn't load tool " << name << std::endl;
-            return 1;
-        }
-        tools.push_back(json::parse(f));
-    }
+    load_tools(tools);
     json messages = json::array({
         {
             {"role", "user"}, 
@@ -167,7 +170,6 @@ int main(int argc, char* argv[]) {
         
     }
     // finish_reason == "stop"
-    // std::cerr << messages.dump() << std::endl;
     std::cout << messages.back()["content"].get<std::string>();
     
 
