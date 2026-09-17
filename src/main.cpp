@@ -70,6 +70,7 @@ int execute_read_tool(const json& arguments, std::string& out_result){
         out_result = ss.str();
         return 0;
 }
+
 static void print_indented(const std::string& text, const char* indent = "      ") {
     std::istringstream in(text);
     std::string line;
@@ -77,7 +78,7 @@ static void print_indented(const std::string& text, const char* indent = "      
         std::cerr << indent << line << "\n";
     }
 }
-void log_msg(const json& msg){
+static void log_msg(const json& msg){
     std::cerr << msg["role"].get<std::string>() << ":" << std::endl;
     if (msg["content"].is_string()) {
         print_indented(msg["content"].get<std::string>());
