@@ -93,6 +93,7 @@ int load_tools(json& out_tools) {
     }
     return 0;
 }
+
 int main(int argc, char* argv[]) {
     if (argc < 3 || std::string(argv[1]) != "-p") {
         std::cerr << "Expected first argument to be '-p'" << std::endl;
@@ -112,7 +113,11 @@ int main(int argc, char* argv[]) {
     }
 
     json tools = json::array();
-    load_tools(tools);
+    if (load_tools(tools)){
+        std::cerr << "loading tools failed" << std::endl;
+        return 1;
+    }
+    
     json messages = json::array({
         {
             {"role", "user"}, 
@@ -146,7 +151,9 @@ int main(int argc, char* argv[]) {
                     std::cerr << "Unknown tool call " << name << std::endl;
                     return 1;
                 }
-                it->second(arguments, tool_result);
+                if (it->second(arguments, tool_result)) {
+                    tool_result = "Error: tool execution failed";
+                }
                 messages.push_back({
                     {"role", "tool"},
                     {"content", tool_result},
