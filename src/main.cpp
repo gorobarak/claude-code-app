@@ -1,4 +1,6 @@
 #include <cstdlib>
+#include <cerrno>
+#include <cstring>
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -20,31 +22,52 @@ static std::string env_or(const char* name, const char* fallback) {
 static const std::string api_key = env_or("OPENROUTER_API_KEY", "");
 static const std::string base_url = env_or("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1");
 
-int execute_write_tool(const json& arguments, std::string& out);
-int execute_read_tool(const json& arguments, std::string& out);
+int execute_write_tool(const json& arguments, std::string& out_result);
+int execute_read_tool(const json& arguments, std::string& out_result);
 static const std::map<std::string, int(*)(const json&, std::string&)> tool_executers = {
     {"Read", execute_read_tool},
     {"Write", execute_write_tool},
 };
 
-int execute_write_tool(const json& arguments, std::string& out){
-    std::cerr << "Not Implemented" << std::endl;
-    return 1;
+int execute_write_tool(const json& arguments, std::string& out_result){
+    if (!arguments.contains("file_path") || !arguments.contains("content")){
+        out_result =  "Missing \'file_path\' or \'content\' arguments for Write\n";
+        return 1;
+    }
+    std::string file_path = arguments["file_path"].get<std::string>();
+    std::string content = arguments["content"].get<std::string>();
+    errno = 0;
+    std::ofstream out(file_path);
+    if (!out) {
+        out_result = "Couldn't open " + file_path + ": " + std::strerror(errno);
+        return 1;
+    }
+    errno = 0;
+    out << content;
+    out.close(); // flush
+    if (!out.good()) {
+        out_result = std::string("Write failed: ") + std::strerror(errno);
+        return 1;
+    }
+    out_result = "Wrote successfully";
+    return 0;
 }
-int execute_read_tool(const json& arguments, std::string& out){
+int execute_read_tool(const json& arguments, std::string& out_result){
         if (!arguments.contains("file_path")){
-            std::cerr << "Missing \'file_path\' argument for Read" << std::endl;
+            out_result = "Missing \'file_path\' argument for Read\n";
             return 1;
         }
-        std::ifstream f(arguments.at("file_path").get<std::string>());
+        std::string file_path = arguments.at("file_path").get<std::string>();
+        errno = 0;
+        std::ifstream f(file_path);
         if (!f) 
         {
-            std::cerr << "File not found " << arguments["file_path"].get<std::string>() << std::endl;
+            out_result = "Couldn't open " + file_path + ": " + std::strerror(errno);
             return 1;
         }
         std::stringstream ss;
         ss << f.rdbuf();
-        out = ss.str();
+        out_result = ss.str();
         return 0;
 }
 
@@ -147,12 +170,11 @@ int main(int argc, char* argv[]) {
                 json arguments = json::parse(tool["function"]["arguments"].get<std::string>());
                 std::string tool_result;
                 auto it = tool_executers.find(name);
-                if (it == tool_executers.end()){
-                    std::cerr << "Unknown tool call " << name << std::endl;
-                    return 1;
+                if (it == tool_executers.end()){  // Tool not found
+                    tool_result = "Unknown tool call " + name + "\n";
                 }
-                if (it->second(arguments, tool_result)) {
-                    tool_result = "Error: tool execution failed";
+                else if (it->second(arguments, tool_result)) {
+                    tool_result = "Error: tool execution failed\n" + tool_result;
                 }
                 messages.push_back({
                     {"role", "tool"},
