@@ -177,7 +177,7 @@ int main(int argc, char* argv[]) {
         
     }
     // finish_reason == "stop"
-    std::cout << messages.get<std::string>() << std::endl;
+    std::cout << messages << std::endl;
     std::cout << messages.back()["content"].get<std::string>();
     
 
