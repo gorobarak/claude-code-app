@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <cerrno>
+#include <cstdio>
 #include <cstring>
 #include <iostream>
 #include <string>
@@ -7,6 +8,8 @@
 #include <sstream>
 #include <map>
 #include <filesystem>
+#include <array>
+#include <sys/wait.h>
 namespace fs = std::filesystem;
 
 #include <cpr/cpr.h>
@@ -22,11 +25,13 @@ static std::string env_or(const char* name, const char* fallback) {
 static const std::string api_key = env_or("OPENROUTER_API_KEY", "");
 static const std::string base_url = env_or("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1");
 
-int execute_write_tool(const json& arguments, std::string& out_result);
 int execute_read_tool(const json& arguments, std::string& out_result);
+int execute_write_tool(const json& arguments, std::string& out_result);
+int execute_bash_tool(const json& arguments, std::string& out_result);
 static const std::map<std::string, int(*)(const json&, std::string&)> tool_executers = {
     {"Read", execute_read_tool},
     {"Write", execute_write_tool},
+    {"Bash", execute_bash_tool},
 };
 
 int execute_write_tool(const json& arguments, std::string& out_result){
@@ -52,6 +57,7 @@ int execute_write_tool(const json& arguments, std::string& out_result){
     out_result = "Wrote successfully";
     return 0;
 }
+
 int execute_read_tool(const json& arguments, std::string& out_result){
         if (!arguments.contains("file_path")){
             out_result = "Missing \'file_path\' argument for Read\n";
@@ -71,6 +77,37 @@ int execute_read_tool(const json& arguments, std::string& out_result){
         return 0;
 }
 
+// Returns the command's exit code, or -1 if it couldn't be run at all.
+static int run_command(const std::string& cmd, std::string& out_output) {
+    errno = 0;
+    FILE* pipe = popen((cmd + " < /dev/null 2>&1").c_str(), "r");
+    if (!pipe) {
+        out_output = std::strerror(errno);
+        return -1;
+    }
+    std::array<char, 4096> buf;
+    size_t n;
+    while ((n = std::fread(buf.data(), 1, buf.size(), pipe)) > 0) {
+        out_output.append(buf.data(), n);
+    }
+    int rc = pclose(pipe);
+    if (rc == -1) return -1;
+    return WIFEXITED(rc) ? WEXITSTATUS(rc) : -1;
+}
+
+int execute_bash_tool(const json& arguments, std::string& out_result){
+    if (!arguments.contains("command")){
+        out_result = "Missing \'command\' argument for Bash";
+        return 1;
+    }
+    std::string cmd = arguments["command"].get<std::string>();
+    int code = run_command(cmd, out_result);
+    if (code == -1) return 1;
+    if (code != 0) {
+        out_result += "\n(exit code " + std::to_string(code) + ")";
+    }
+    return 0;
+}
 static void print_indented(const std::string& text, const char* indent = "      ") {
     std::istringstream in(text);
     std::string line;
